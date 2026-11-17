@@ -1,0 +1,163 @@
+{% extends "base.j2" %}
+
+{% block title %}クロール履歴 - Voracity2 Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="bi bi-journal-text"></i>
+        クロール履歴
+    </h1>
+</div>
+
+        <!-- フィルタフォーム -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <form method="GET" action="{{ url_for('crawl_logs') }}">
+                    <input type="hidden" name="page" value="1">
+                    <div class="row align-items-end">
+                        <div class="col-md-4">
+                            <label for="site_name" class="form-label">サイト名でフィルタ</label>
+                            <select class="form-select" name="site_name" id="site_name">
+                                <option value="">すべて</option>
+                                {% for site in site_names %}
+                                    <option value="{{ site }}" {% if site == selected_site %}selected{% endif %}>{{ site }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">フィルタ</button>
+                        </div>
+                        {% if selected_site %}
+                        <div class="col-md-2">
+                            <a href="{{ url_for('crawl_logs') }}" class="btn btn-secondary">クリア</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 件数とページ情報 -->
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <span class="text-muted">
+                    全{{ total_count }}件中 {{ (current_page - 1) * per_page + 1 }}～{{ [(current_page * per_page), total_count]|min }}件を表示
+                    {% if selected_site %}（{{ selected_site }}でフィルタ中）{% endif %}
+                </span>
+            </div>
+            <div>
+                <span class="text-muted">{{ current_page }} / {{ total_pages }}ページ</span>
+            </div>
+        </div>
+        
+        <!-- テーブル表示（PC/タブレット） -->
+        <div class="d-none d-lg-block table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>作成日時</th>
+                        <th>サイト名</th>
+                        <th>待機中</th>
+                        <th>実行中</th>
+                        <th>成功</th>
+                        <th>失敗</th>
+                        <th>総ページ数</th>
+                        <th>総商品数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for log in logs %}
+                    <tr>
+                        <td>{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else '' }}</td>
+                        <td>{{ log.site_name }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(log.page_pending) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(log.page_running) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(log.page_end_ok) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(log.page_end_ng) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(log.page_total) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(log.product_total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <!-- カード表示（スマホ） -->
+        <div class="d-lg-none">
+            {% for log in logs %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ log.site_name }}</h5>
+                    <h6 class="card-subtitle mb-2 text-muted">{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') if log.created_at else '' }}</h6>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>待機中:</strong> <span class="float-end">{{ "{:,.0f}".format(log.page_pending) }}</span></li>
+                        <li class="list-group-item"><strong>実行中:</strong> <span class="float-end">{{ "{:,.0f}".format(log.page_running) }}</span></li>
+                        <li class="list-group-item"><strong>成功:</strong> <span class="float-end">{{ "{:,.0f}".format(log.page_end_ok) }}</span></li>
+                        <li class="list-group-item"><strong>失敗:</strong> <span class="float-end">{{ "{:,.0f}".format(log.page_end_ng) }}</span></li>
+                        <li class="list-group-item"><strong>総ページ数:</strong> <span class="float-end">{{ "{:,.0f}".format(log.page_total) }}</span></li>
+                        <li class="list-group-item"><strong>総商品数:</strong> <span class="float-end">{{ "{:,.0f}".format(log.product_total) }}</span></li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <!-- ページネーション -->
+        {% if total_pages > 1 %}
+        <nav aria-label="ページネーション">
+            <ul class="pagination justify-content-center">
+                <!-- 最初のページ -->
+                {% if current_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('crawl_logs', site_name=selected_site, page=1) }}">最初</a>
+                </li>
+                {% endif %}
+                
+                <!-- 前のページ -->
+                {% if current_page > 1 %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('crawl_logs', site_name=selected_site, page=current_page-1) }}">前へ</a>
+                </li>
+                {% endif %}
+                
+                <!-- ページ番号 -->
+                {% set start_page = [1, current_page - 2]|max %}
+                {% set end_page = [total_pages, current_page + 2]|min %}
+                
+                {% if start_page > 1 %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                {% for page_num in range(start_page, end_page + 1) %}
+                <li class="page-item {% if page_num == current_page %}active{% endif %}">
+                    <a class="page-link" href="{{ url_for('crawl_logs', site_name=selected_site, page=page_num) }}">{{ page_num }}</a>
+                </li>
+                {% endfor %}
+                
+                {% if end_page < total_pages %}
+                <li class="page-item disabled">
+                    <span class="page-link">...</span>
+                </li>
+                {% endif %}
+                
+                <!-- 次のページ -->
+                {% if current_page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('crawl_logs', site_name=selected_site, page=current_page+1) }}">次へ</a>
+                </li>
+                {% endif %}
+                
+                <!-- 最後のページ -->
+                {% if current_page < total_pages %}
+                <li class="page-item">
+                    <a class="page-link" href="{{ url_for('crawl_logs', site_name=selected_site, page=total_pages) }}">最後</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
+    </div>
+{% endblock %}

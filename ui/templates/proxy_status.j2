@@ -1,0 +1,71 @@
+{% extends "base.j2" %}
+
+{% block title %}プロキシ状況 - Voracity2 Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="bi bi-shield-check"></i>
+        プロキシ状況
+    </h1>
+    <div class="d-flex align-items-center gap-2">
+        <div class="dropdown">
+            <label for="autoReloadSelect" class="form-label me-2 mb-0">自動更新:</label>
+            <select class="form-select form-select-sm" id="autoReloadSelect" onchange="setAutoReload(this.value)" style="width: auto;">
+                <option value="0">なし</option>
+                <option value="5">5秒</option>
+                <option value="10">10秒</option>
+                <option value="30">30秒</option>
+                <option value="60">1分</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="d-none d-sm-block table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center">group_name</th>
+                        <th class="text-center">available</th>
+                        <th class="text-center">blocked</th>
+                        <th class="text-center">disabled</th>
+                        <th class="text-center">total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in proxies %}
+                    <tr>
+                        <td class="text-center"><a href="{{url_for('proxy_status_detail', group_name=row.group_name) }}">{{ row.group_name }}</a></td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.available) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.blocked) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.disabled) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-sm-none">
+            {% for row in proxies %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title text-center">
+                        <a href="{{url_for('proxy_status_detail', group_name=row.group_name) }}" class="text-decoration-none">{{ row.group_name }}</a>
+                    </h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>available:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.available) }}</span></li>
+                        <li class="list-group-item"><strong>blocked:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.blocked) }}</span></li>
+                        <li class="list-group-item"><strong>disabled:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.disabled) }}</span></li>
+                        <li class="list-group-item"><strong>total:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.total) }}</span></li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}

@@ -1,0 +1,82 @@
+{% extends "base.j2" %}
+
+{% block title %}プロキシ詳細 - {{ group_name }} - Voracity2 Dashboard{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('index') }}">ホーム</a></li>
+        <li class="breadcrumb-item"><a href="{{ url_for('proxy_status') }}">プロキシ状況</a></li>
+        <li class="breadcrumb-item active" aria-current="page">{{ group_name }}</li>
+    </ol>
+</nav>
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="bi bi-shield-check"></i>
+        プロキシ詳細 - {{ group_name }}
+    </h1>
+    <div class="d-flex align-items-center gap-2">
+        <div class="dropdown">
+            <label for="autoReloadSelect" class="form-label me-2 mb-0">自動更新:</label>
+            <select class="form-select form-select-sm" id="autoReloadSelect" onchange="setAutoReload(this.value)" style="width: auto;">
+                <option value="0">なし</option>
+                <option value="5">5秒</option>
+                <option value="10">10秒</option>
+                <option value="30">30秒</option>
+                <option value="60">1分</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table th:nth-child(1), .table td:nth-child(1) { width: 10%; } /* status */
+    .table th:nth-child(2), .table td:nth-child(2) { width: 35%; word-break: break-all; } /* url */
+    .table th:nth-child(3), .table td:nth-child(3) { width: 25%; } /* available_at */
+    .table th:nth-child(4), .table td:nth-child(4) { width: 15%; } /* block_count */
+    .table th:nth-child(5), .table td:nth-child(5) { width: 15%; } /* block_interval */
+</style>
+        </nav>
+        <h1 class="mb-4">プロキシ状況 - {{ group_name }}</h1>
+        <h1 class="mb-4">プロキシ状況 - {{ group_name }}</h1>
+        <div class="d-none d-sm-block table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th class="text-center">status</th>
+                        <th class="text-center">url</th>
+                        <th class="text-center">available_at</th>
+                        <th class="text-center">block_count</th>
+                        <th class="text-center">block_interval</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in proxies %}
+                    <tr>
+                        <td class="text-center">{{ row.status }}</td>
+                        <td class="text-center">{{ row.url }}</td>
+                        <td class="text-center">{{ row.available_at }}</td>
+                        <td class="text-center">{{ row.block_count }}</td>
+                        <td class="text-center">{{ row.block_interval }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-sm-none">
+            {% for row in proxies %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title text-center">{{ row.url }}</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>status:</strong> <span class="float-end">{{ row.status }}</span></li>
+                        <li class="list-group-item"><strong>available_at:</strong> <span class="float-end">{{ row.available_at }}</span></li>
+                        <li class="list-group-item"><strong>block_count:</strong> <span class="float-end">{{ row.block_count }}</span></li>
+                        <li class="list-group-item"><strong>block_interval:</strong> <span class="float-end">{{ row.block_interval }}</span></li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+{% endblock %}

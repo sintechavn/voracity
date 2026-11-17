@@ -1,0 +1,80 @@
+{% extends "base.j2" %}
+
+{% block title %}ジョブ進捗 - Voracity2 Dashboard{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>
+        <i class="bi bi-bar-chart"></i>
+        ジョブ進捗
+    </h1>
+    <div class="d-flex align-items-center gap-2">
+        <div class="dropdown">
+            <label for="autoReloadSelect" class="form-label me-2 mb-0">自動更新:</label>
+            <select class="form-select form-select-sm" id="autoReloadSelect" onchange="setAutoReload(this.value)" style="width: auto;">
+                <option value="0">なし</option>
+                <option value="5">5秒</option>
+                <option value="10">10秒</option>
+                <option value="30">30秒</option>
+                <option value="60">1分</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<div class="d-none d-md-block table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>site_id</th>
+                        <th>site_name</th>
+                        <th>page_pending</th>
+                        <th>page_running</th>
+                        <th>page_end_ok</th>
+                        <th>page_end_ng</th>
+                        <th>page_progress</th>
+                        <th>product_total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in status %}
+                    <tr>
+                        <td class="text-end">{{ row.site_id }}</td>
+                        <td>{{ row.site_name }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.page_pending) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.page_running) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.page_end_ok) }}</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.page_end_ng) }}</td>
+                        <td class="text-end">{{ "{:,.1f}".format(row.page_progress) }}%</td>
+                        <td class="text-end">{{ "{:,.0f}".format(row.product_total) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="d-md-none">
+            {% for row in status %}
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">{{ row.site_name }} <span class="text-muted">(ID: {{ row.site_id }})</span>
+                    </h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>page_pending:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.page_pending) }}</span></li>
+                        <li class="list-group-item"><strong>page_running:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.page_running) }}</span></li>
+                        <li class="list-group-item"><strong>page_end_ok:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.page_end_ok) }}</span></li>
+                        <li class="list-group-item"><strong>page_end_ng:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.page_end_ng) }}</span></li>
+                        <li class="list-group-item"><strong>page_progress:</strong> <span class="float-end">{{
+                                "{:,.1f}".format(row.page_progress) }}%</span></li>
+                        <li class="list-group-item"><strong>product_total:</strong> <span class="float-end">{{
+                                "{:,.0f}".format(row.product_total) }}</span></li>
+                    </ul>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+{% endblock %}
