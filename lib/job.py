@@ -92,6 +92,7 @@ def create_log(site_id: int) -> bool:
                     v_status2
                 where
                     site_id = :site_id
+                    and product_total > 0
                 """)
     with get_db_session() as session:
         ret = session.execute(statement, {"site_id": site_id})

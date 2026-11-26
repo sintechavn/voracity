@@ -161,13 +161,7 @@ def send_csv(site_name: str, force_flg: bool, reset_flg: bool, backup_flg: bool)
         )
         logger.info(f"{site_name} {fpath}.zip Slack送信完了")
 
-    # ログを記録する
-    ret = job.create_log(site_id)
-    if ret:
-        logger.info(f"{site_name} ログ記録完了")
-    else:
-        logger.error(f"{site_name} ログ記録失敗")
-        return
+    # NOTE: crawl_logs への記録は send_csv_real のみが行う
 
     ## サイトの情報をリセットする
     if reset_flg:
